@@ -2,25 +2,32 @@ $fn=100;
 n=2;h=15;
 
 if($preview){
-    translate([1,0,3])if("HDD Rack" && 1){
-        translate([0,0,5])hdd(n,h,5+h);
+    translate([1,0,8])
+    if("HDD Rack" && 1){
+        hdd(n,h,5+h);
         for(j = [0:1:1]){
-            translate([0,0,5])mirror([0,j,0])translate([100/2-13,70/2,0])stack(n,h);
-            translate([0,0,5])mirror([0,j,0])translate([100/2-13-76,70/2,0])stack(n,h);
+            mirror([0,j,0])translate([100/2-13,70/2,0])stack(n,h);
+            mirror([0,j,0])translate([100/2-13-76,70/2,0])stack(n,h);
         }
     }
+    translate([1,0,3])
     if("Rack Screws" && 0){
         stackScrews();
     }
-    rotate([0,0,90])translate([0,70,45])
+    rotate([0,0,90])translate([0,70,43])
     if("Case Holder" && 1){
         caseHolder();
         caseToPlate();
     }
-    rotate([0,0,-90])translate([0,100,-10])
+    d_il=20;
+    rotate([0,0,-90])translate([d_il,105.5,-12])
     if("Interlock" && 1){
-        interlock(9);//(sin($t*360)+1)*5
+        interlock(8);//(sin($t*360)+1)*5
         interlockToPlate();
+    }
+    translate([12.5,0,0])
+    if("Baseplate" && 1){
+        basePlate(d_il=d_il);
     }
 } else {
     w=25;
@@ -46,8 +53,45 @@ if($preview){
     if (PART == "interlock_base") {
     interlockLock(w=w,l=l,h=h,main_dia=main_dia,sec_dia=sec_dia,sec_length=sec_length,mech_offset=mech_offset);
     }
-    if (PART == "interlock_base") {
+    if (PART == "interlock_to_plate") {
     interlockToPlate();
+    }
+    if (PART == "baseplate") {
+    basePlate();
+    }
+}
+
+module basePlate(d_il=0){
+    h=2;
+    l=155;
+    w=107;
+    il=50;
+    face_hole_spacing=22.5;
+    face_hole_n=2;
+    color("lightgrey")
+    difference(){
+        union(){
+            // Plate
+            hull(){
+                translate([-10,0,-h/2])cube([l-20,w,h-0.01],center=true);
+                translate([0,-d_il,-h/2])cube([l,il,h-0.01],center=true);
+            }
+            // bottom screw extension
+            for(i = [-face_hole_n:1:face_hole_n]){
+                translate([-l/2+3,face_hole_spacing*i,-h])cylinder(d=9,h=h);
+            }
+        }union(){
+            // Rack Screws
+            translate([-12.5,0,1])stackScrews();
+            // mech screws
+            for(i = [-1:1:1]){
+                translate([l/2-5,-d_il+20*i,-h/2-1])cylinder(d=4.05,h=h+2);
+            }
+            // case screws
+            for(i = [-face_hole_n:1:face_hole_n]){
+                translate([-l/2+3,face_hole_spacing*i,-h-1])cylinder(d=4.05,h=h+2);
+            }
+        }
     }
 }
 
